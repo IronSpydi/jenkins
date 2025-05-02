@@ -27,6 +27,13 @@ pipeline {
             }
         }
         stage('Test'){
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                    args '-v ${WORKSPACE}:/app -w /app'
+                }
+            }
             steps{
                 sh '''
                     # Check if index.html exists in the build folder
