@@ -26,5 +26,21 @@ pipeline {
                 '''
             }
         }
+        stage('Test'){
+            steps{
+                sh '''
+                    # Check if index.html exists in the build folder
+                    if [ -f build/index.html ]; then
+                        echo "✅ index.html found in build folder"
+                    else
+                        echo "❌ ERROR: index.html not found in build folder"
+                    fi
+
+                    echo "Running tests..."
+                    npm test
+                '''
+                
+            }
+        }
     }
 }
