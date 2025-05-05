@@ -62,10 +62,8 @@ pipeline {
             }
             steps{
                 sh '''
-                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-                    source ~/.bashrc
-                    nvm install node
-                    npm install -g serve
+                    npm install serve
+                    node_modules/.bin/serve -s build &
                     sleep 10
                     npx playwrite test
                 '''
