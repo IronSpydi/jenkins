@@ -1,6 +1,7 @@
 pipeline {
     agent any
     stages {
+        /*
         stage('Build'){
             agent {
                 docker {
@@ -26,6 +27,7 @@ pipeline {
                 '''
             }
         }
+        */
         stage('Test'){
             agent {
                 docker {
@@ -47,6 +49,24 @@ pipeline {
                     npm test
                 '''
                 
+            }
+        }
+
+        stage {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.52.0-noble'
+                    reuseNode true
+                    args '-v ${WORKSPACE}:/app -w /app'
+                }
+            }
+            steps{
+                sh '''
+                    npm install server
+                    node_modules/.bin/serve -s build &
+                    sleep 10
+                    npx playwrite test
+                '''
             }
         }
     }
