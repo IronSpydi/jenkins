@@ -1,79 +1,68 @@
 pipeline {
     agent any
+
     stages {
         /*
-        stage('Build'){
+
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-v ${WORKSPACE}:/app -w /app'
                 }
             }
-            steps{
+            steps {
                 sh '''
-                # Set npm cache directory to a location with write permissions
-                export HOME=${WORKSPACE}
-                export npm_config_cache=${WORKSPACE}/.npm
-                
-                ls -la
-                node --version
-                npm --version
-                
-                # Use npm install instead of npm ci
-                npm install
-                npm run build
-                ls -la
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
                 '''
             }
         }
         */
-        stage('Test'){
+
+        stage('Test') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-v ${WORKSPACE}:/app -w /app'
                 }
             }
-            steps{
-                sh '''
-                    # Check if index.html exists in the build folder
-                    if [ -f build/index.html ]; then
-                        echo "✅ index.html found in build folder"
-                    else
-                        echo "❌ ERROR: index.html not found in build folder"
-                    fi
 
-                    echo "Running tests..."
+            steps {
+                sh '''
+                    #test -f build/index.html
                     npm test
                 '''
-                
             }
         }
 
         stage('E2E') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.52.0-noble'
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
-                    args '-v ${WORKSPACE}:/app -w /app'
                 }
             }
-            steps{
+
+            steps {
                 sh '''
                     npm install serve
                     node_modules/.bin/serve -s build &
                     sleep 10
-                    npx playwrite test
+                    npx playwright test --reporter=html
                 '''
             }
         }
     }
 
-    post{
+    post {
         always {
-            junit 'test-results/'
+            junit 'jest-results/junit.xml'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
