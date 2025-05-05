@@ -50,6 +50,7 @@ pipeline {
 
             steps {
                 sh '''
+                    export NPM_CONFIG_CACHE=$HOME/.npm
                     npm install serve
                     node_modules/.bin/serve -s build &
                     sleep 10
