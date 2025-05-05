@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     stages {
 
         stage('Build') {
@@ -11,6 +10,7 @@ pipeline {
                 }
             }
             steps {
+                cleanWs()
                 sh '''
                     ls -la
                     node --version
